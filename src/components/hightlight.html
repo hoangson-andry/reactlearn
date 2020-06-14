@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<body>
+  <p id="test">Select me: <i>italic</i> and <b>bold</b></p>
+
+  Cloned: <span id="cloned"></span>
+  <br />
+  As text: <span id="astext"></span>
+
+  <div id="myarea" contenteditable="true">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quam orci,
+    ornare
+    <span style="font-weight: bold;"
+      >sed ullamcorper id, eleifend in quam. Nulla facilisi. Aliquam vitae orci
+      arcu. Aenean a nulla volutpat ante</span
+    >
+    ultrices euismod ut et magna. Nulla vitae vulputate urna. Donec tempus, nisi
+    a pharetra placerat, diam nisi aliquam elit, a consectetur magna enim sed
+    ligula. Aliquam iaculis rutrum dui et tristique. Nulla facilisi. Cras eu
+    ante fringilla erat convallis rutrum in ac <b>magna</b>. Praesent porta
+    bibendum augue sit amet rhoncus. Vestibulum nibh quam, posuere non
+    consectetur eget, pharetra sit amet lectus.
+  </div>
+
+  <button onclick="makeBold();">Get HTML</button>
+  <script>
+    document.onselectionchange = function () {
+      let selection = document.getSelection();
+
+      cloned.innerHTML = astext.innerHTML = "";
+
+      // Clone DOM nodes from ranges (we support multiselect here)
+      cloned.innerHTML =
+        "<mark>" + selection.getRangeAt(i).toString() + "</mark>";
+    };
+
+    // console.log(p.text.indexOf("cloned"))
+    // Get as text
+    astext.innerHTML += selection;
+  </script>
+
+  <script>
+    function getSelectionHtml() {
+      var html = "";
+      if (typeof window.getSelection != "undefined") {
+        var sel = window.getSelection();
+        if (sel.rangeCount) {
+          var container = document.createElement("div");
+          for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+          }
+
+          html = container.innerHTML;
+        }
+      } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+          console.log(2);
+          html = document.selection.createRange().htmlText;
+        }
+      }
+
+      console.log("bo", html);
+      html.replace(/<\/?mark[^>]*>/g, "");
+      console.log("ao", html.replace(/<\/?mark[^>]*>/g, ""));
+      return { toRelpace: html.replace(/<\/?mark[^>]*>/g, ""), location: html };
+    }
+
+    function makeBold() {
+      var highlight = getSelectionHtml();
+      var span = "<mark>" + highlight.toRelpace + "</mark>";
+      console.log("highlight", highlight.toRelpace);
+      console.log(new RegExp(highlight.location, "g"));
+      // console.log(highlight.selectAllChildren());
+
+      myarea.innerHTML = myarea.innerHTML.replace(
+        new RegExp(highlight.location, "g"),
+        span
+      );
+      console.log("myarea.innerHTML", myarea.innerHTML);
+    }
+  </script>
+
+  <!-- <script>
+  function getTextNodesIn(node) {
+    var textNodes = [];
+    if (node.nodeType == 3) {
+        textNodes.push(node);
+    } else {
+        var children = node.childNodes;
+        for (var i = 0, len = children.length; i < len; ++i) {
+            textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+        }
+    }
+    return textNodes;
+}
+
+function setSelectionRange(el, start, end) {
+    if (document.createRange && window.getSelection) {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var textNodes = getTextNodesIn(el);
+        var foundStart = false;
+        var charCount = 0, endCharCount;
+
+        for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+            endCharCount = charCount + textNode.length;
+            if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
+                range.setStart(textNode, start - charCount);
+                foundStart = true;
+            }
+            if (foundStart && end <= endCharCount) {
+                range.setEnd(textNode, end - charCount);
+                break;
+            }
+            charCount = endCharCount;
+        }
+
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (document.selection && document.body.createTextRange) {
+        var textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.collapse(true);
+        textRange.moveEnd("character", end);
+        textRange.moveStart("character", start);
+        textRange.select();
+    }
+}
+
+function makeEditableAndHighlight(colour) {
+    sel = window.getSelection();
+    if (sel.rangeCount && sel.getRangeAt) {
+        range = sel.getRangeAt(0);
+    }
+    document.designMode = "on";
+    if (range) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+    // Use HiliteColor since some browsers apply BackColor to the whole block
+    if (!document.execCommand("HiliteColor", false, colour)) {
+        document.execCommand("BackColor", false, colour);
+    }
+    document.designMode = "off";
+}
+
+function highlight(colour) {
+    var range, sel;
+    if (window.getSelection) {
+        // IE9 and non-IE
+        try {
+            if (!document.execCommand("BackColor", false, colour)) {
+                makeEditableAndHighlight(colour);
+            }
+        } catch (ex) {
+            makeEditableAndHighlight(colour)
+        }
+    } else if (document.selection && document.selection.createRange) {
+        // IE <= 8 case
+        range = document.selection.createRange();
+        range.execCommand("BackColor", false, colour);
+    }
+}
+
+function selectAndHighlightRange(id, start, end) {
+    setSelectionRange(document.getElementById("test"), start, end);
+    highlight("yellow");
+}
+
+
+</script> -->
+</body>
